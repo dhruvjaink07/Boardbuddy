@@ -154,6 +154,21 @@
   - On mobile screens ($< 700\text{px}$), gracefully maintains the focused single-column tabbed selector.
 - **Verification**: `flutter build web --release` compiled successfully in 21.2s; all 12 Flutter tests passing; 75 backend tests passing.
 
+### [2026-11-18] — Phase 8: End-to-End AI Goal-to-Board Generation & Text Overflow Hardening
+**Status:** Completed  
+**Focus:** Full goal-to-board creation workflow, interactive preview with columns & tasks, and layout hardening against text truncation/overflow
+
+#### Work Done:
+- **Board Generation Model & Repository Integration (`client/lib/models/generated_board_plan.dart`, `board_repository.dart`)**:
+  - Implemented `GeneratedBoardPlan` and `GeneratedCardPreview` models.
+  - Added `generateBoardPlan(prompt)` to `BoardRepository` supporting domain-tailored workflow structures (Fintech/Banking, Go-to-Market, Research, Sprint Delivery).
+- **Responsive Generation UI (`client/lib/screens/create_board/create_board_screen.dart`)**:
+  - Wrapped creation surface with `Responsive.contentWidth(context)` and `IntrinsicHeight` preventing text overflow across screen sizes from 320px narrow phones up to 4K desktop monitors.
+  - Implemented prompt template quick-chips and async generation state ("Structuring Kanban Board...").
+  - Designed horizontal scrollable column preview cards displaying generated stage titles, task counts, mini task items, and priority tags without text clipping.
+  - Implemented atomic board creation: persists full board, columns, and task cards directly into `BoardListBloc`.
+- **Verification**: 15 Flutter tests passing (`board_generation_test.dart` for 320px screen test & generation preview flow); 75 backend tests passing; 0 analyzer issues.
+
 ---
 
 ## 🏛️ Architectural Decisions & Rationales (ADRs)
