@@ -1,6 +1,7 @@
 import '../models/board_insight_model.dart';
 import '../models/board_model.dart';
 import '../models/card_model.dart';
+import '../models/generated_board_plan.dart';
 import 'mock_data.dart';
 
 abstract class BoardRepository {
@@ -18,6 +19,7 @@ abstract class BoardRepository {
   Future<void> updateCard(CardModel card);
   Future<void> toggleSubtask({required String cardId, required String subtaskId});
   Future<BoardInsightModel> getBoardInsights(String boardId, {bool forceRefresh = false});
+  Future<GeneratedBoardPlan> generateBoardPlan(String prompt);
 }
 
 class InMemoryBoardRepository implements BoardRepository {
@@ -220,5 +222,150 @@ class InMemoryBoardRepository implements BoardRepository {
       inProgressTasks: inProgress,
       progressPercent: progress,
     );
+  }
+
+  @override
+  Future<GeneratedBoardPlan> generateBoardPlan(String prompt) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    final lower = prompt.toLowerCase();
+    final planId = 'plan-${DateTime.now().millisecondsSinceEpoch}';
+
+    if (lower.contains('bank') || lower.contains('finance') || lower.contains('pay')) {
+      return GeneratedBoardPlan(
+        planId: planId,
+        boardName: 'Mobile Banking App',
+        boardDescription: prompt,
+        columns: ['Backlog', 'In Development', 'Security & QA', 'Done'],
+        cards: const [
+          GeneratedCardPreview(
+            title: 'Biometric Auth & Session Tokens',
+            description: 'Implement FaceID, TouchID, and auto-refreshing bearer tokens.',
+            columnIndex: 0,
+            priority: CardPriority.urgent,
+            estimateMinutes: 120,
+            labels: ['auth', 'security'],
+          ),
+          GeneratedCardPreview(
+            title: 'Account Balance & Real-time Ledger',
+            description: 'Build responsive ledger showing checking, savings, and card balances.',
+            columnIndex: 1,
+            priority: CardPriority.high,
+            estimateMinutes: 90,
+            labels: ['core', 'ui'],
+          ),
+          GeneratedCardPreview(
+            title: 'Instant P2P Fund Transfers',
+            description: 'Wire up transfer API with double-entry validation and idempotency keys.',
+            columnIndex: 1,
+            priority: CardPriority.urgent,
+            estimateMinutes: 150,
+            labels: ['payments', 'api'],
+          ),
+          GeneratedCardPreview(
+            title: 'Push Alerts for Low Balance',
+            description: 'Send APNS/FCM notifications when account dips below threshold.',
+            columnIndex: 0,
+            priority: CardPriority.medium,
+            estimateMinutes: 45,
+            labels: ['notifications'],
+          ),
+          GeneratedCardPreview(
+            title: 'Penetration Testing & Encryption Audit',
+            description: 'Verify AES-256 field encryption and TLS certificate pinning.',
+            columnIndex: 2,
+            priority: CardPriority.urgent,
+            estimateMinutes: 180,
+            labels: ['audit', 'compliance'],
+          ),
+        ],
+        summary: 'Generated 4 workflow stages and 5 prioritized fintech tasks with security safeguards.',
+      );
+    } else if (lower.contains('market') || lower.contains('launch') || lower.contains('campaign')) {
+      return GeneratedBoardPlan(
+        planId: planId,
+        boardName: 'Product Go-To-Market Campaign',
+        boardDescription: prompt,
+        columns: ['Ideation', 'Asset Creation', 'Review', 'Published'],
+        cards: const [
+          GeneratedCardPreview(
+            title: 'Define ICP & Core Messaging Angles',
+            description: 'Draft target personas, pain points, and product differentiation matrix.',
+            columnIndex: 0,
+            priority: CardPriority.high,
+            estimateMinutes: 90,
+            labels: ['strategy'],
+          ),
+          GeneratedCardPreview(
+            title: 'Interactive Product Demo Screencast',
+            description: 'Record 60-second video demo showing AI board generation in action.',
+            columnIndex: 1,
+            priority: CardPriority.high,
+            estimateMinutes: 120,
+            labels: ['video', 'media'],
+          ),
+          GeneratedCardPreview(
+            title: 'Launch Announcement Newsletter & Blog',
+            description: 'Write launch post with feature highlights and migration guide.',
+            columnIndex: 1,
+            priority: CardPriority.medium,
+            estimateMinutes: 75,
+            labels: ['copywriting'],
+          ),
+          GeneratedCardPreview(
+            title: 'Targeted Growth Ads on Developer Channels',
+            description: 'Configure and monitor ad campaigns across tech platforms.',
+            columnIndex: 2,
+            priority: CardPriority.medium,
+            estimateMinutes: 60,
+            labels: ['growth'],
+          ),
+        ],
+        summary: 'Generated 4 campaign stages and 4 go-to-market action cards.',
+      );
+    } else {
+      final title = prompt.length > 28 ? '${prompt.substring(0, 25)}...' : (prompt.isNotEmpty ? prompt : 'Sprint Delivery Project');
+      return GeneratedBoardPlan(
+        planId: planId,
+        boardName: title,
+        boardDescription: prompt,
+        columns: ['Backlog', 'To Do', 'In Progress', 'Done'],
+        cards: const [
+          GeneratedCardPreview(
+            title: 'Architecture & Scope Alignment',
+            description: 'Confirm user stories, milestones, and technical dependencies.',
+            columnIndex: 1,
+            priority: CardPriority.urgent,
+            estimateMinutes: 60,
+            labels: ['planning'],
+          ),
+          GeneratedCardPreview(
+            title: 'Implement Core Feature Workflow',
+            description: 'Develop primary domain logic, services, and user interfaces.',
+            columnIndex: 2,
+            priority: CardPriority.high,
+            estimateMinutes: 180,
+            labels: ['feature', 'core'],
+          ),
+          GeneratedCardPreview(
+            title: 'Automated Test Suite & Edge Cases',
+            description: 'Write unit tests, regression evaluations, and verify clean state.',
+            columnIndex: 1,
+            priority: CardPriority.high,
+            estimateMinutes: 90,
+            labels: ['testing'],
+          ),
+          GeneratedCardPreview(
+            title: 'Deployment & Observability Setup',
+            description: 'Configure Docker container, health checks, and monitoring.',
+            columnIndex: 0,
+            priority: CardPriority.medium,
+            estimateMinutes: 60,
+            labels: ['devops'],
+          ),
+        ],
+        summary: 'Structured goal into 4 workflow columns and 4 prioritized delivery cards.',
+      );
+    }
   }
 }
