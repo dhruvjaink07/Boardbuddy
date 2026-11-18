@@ -23,7 +23,6 @@ class WelcomeScreen extends StatelessWidget {
                 width: 76,
                 height: 76,
                 decoration: BoxDecoration(
-                  gradient: AppColors.orangeGradient,
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: const [
                     BoxShadow(
@@ -34,10 +33,24 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: const Icon(
-                  Icons.grid_view_rounded,
-                  color: Colors.white,
-                  size: 38,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22),
+                  child: Image.asset(
+                    'assets/images/logo_icon.png',
+                    width: 76,
+                    height: 76,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      decoration: const BoxDecoration(
+                        gradient: AppColors.orangeGradient,
+                      ),
+                      child: const Icon(
+                        Icons.grid_view_rounded,
+                        color: Colors.white,
+                        size: 38,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
