@@ -138,6 +138,22 @@
   - Updated `WelcomeScreen` to render the branded logo asset with glowing orange ambient shadow.
 - **Verification**: 75 backend tests passing, 12 Flutter tests passing, and 0 analyzer errors.
 
+### [2026-11-18] — Phase 7: Web Accessibility, PWA Manifest, and Responsive Desktop Kanban
+**Status:** Completed  
+**Focus:** Web a11y, mouse/trackpad smooth dragging, social meta tags, PWA manifest, and wide-screen horizontal Kanban layout
+
+#### Work Done:
+- **Web App Manifest & Shell (`client/web/index.html`, `manifest.json`)**:
+  - Replaced boilerplate title and descriptions with official BoardBuddy branding (`#0D0B0A` theme color, dark color-scheme).
+  - Added OpenGraph (`og:image`, `og:title`) and Twitter card preview meta tags pointing to `/logo.png`.
+  - Configured standalone PWA manifest with maskable application icons.
+- **Web Navigation & Gesture Accessibility (`client/lib/main.dart`)**:
+  - Implemented `WebScrollBehavior` enabling native mouse click-drag, mouse-wheel, and trackpad panning across horizontal lists.
+- **Responsive Multi-Column Kanban on Web (`client/lib/screens/board/board_detail_screen.dart`)**:
+  - On wide desktop/web screens ($\ge 700\text{px}$), automatically renders all Kanban columns side-by-side in a horizontal scrolling workspace with individual column headers, count badges, and task creation controls.
+  - On mobile screens ($< 700\text{px}$), gracefully maintains the focused single-column tabbed selector.
+- **Verification**: `flutter build web --release` compiled successfully in 21.2s; all 12 Flutter tests passing; 75 backend tests passing.
+
 ---
 
 ## 🏛️ Architectural Decisions & Rationales (ADRs)
