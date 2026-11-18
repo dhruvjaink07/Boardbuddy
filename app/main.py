@@ -1,8 +1,11 @@
 import time
 import uuid
+from pathlib import Path
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api.error_handlers import register_error_handlers
@@ -73,3 +76,34 @@ def health_check():
 @app.get("/api/v1/health", tags=["Health"])
 def api_v1_health():
     return {"status": "ok"}
+
+
+# Static asset mounting & logo endpoints
+STATIC_DIR = Path(__file__).resolve().parent / "static"
+if STATIC_DIR.is_dir():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+
+@app.get("/logo.png", tags=["Assets"], include_in_schema=False)
+def serve_logo_png():
+    logo_file = STATIC_DIR / "logo.png"
+    if logo_file.is_file():
+        return FileResponse(logo_file, media_type="image/png")
+    return JSONResponse(status_code=404, content={"error": "logo not found"})
+
+
+@app.get("/logo.svg", tags=["Assets"], include_in_schema=False)
+def serve_logo_svg():
+    logo_file = STATIC_DIR / "logo.svg"
+    if logo_file.is_file():
+        return FileResponse(logo_file, media_type="image/svg+xml")
+    return JSONResponse(status_code=404, content={"error": "logo not found"})
+
+
+@app.get("/favicon.ico", tags=["Assets"], include_in_schema=False)
+def serve_favicon():
+    favicon_file = STATIC_DIR / "favicon.ico"
+    if favicon_file.is_file():
+        return FileResponse(favicon_file, media_type="image/x-icon")
+    return JSONResponse(status_code=404, content={"error": "favicon not found"})
+
