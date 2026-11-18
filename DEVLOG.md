@@ -210,9 +210,41 @@
 
 | Suite | Tests | Result | Target |
 |---|---|---|---|
-| Backend Pytest Suite | 75 | **75 Passed (100%)** | 100% |
+| Backend Pytest Suite | 82 | **82 Passed (100%)** | 100% |
 | 30 Evaluation Prompts | 30 | **30 Passed (100%)** | $\ge$ 90% |
 | Critical Safety Failures | 30 | **0 Failures** | 0 |
 | Pydantic Output Validity | 30 | **100% Valid** | 100% |
-| Flutter Client BLoC Tests | 10 | **10 Passed (100%)** | 100% |
-| Flutter Analyzer | 19 Screens | **0 Lint Issues** | 0 |
+| Flutter Client Tests | 15 | **15 Passed (100%)** | 100% |
+| Flutter Analyzer | Clean | **0 Lint Issues** | 0 |
+
+---
+
+## 🚀 Post-Rebuild Audit & Hardening (Phase 1 & 2)
+
+### Phase 1: Deerflow Hardening & Quality of Insights
+- **Structured Pydantic Extraction**:
+  - Implemented `DeerflowAnalysisSchema` (summary, findings, recommendations) with Pydantic validation.
+  - Replaced static template strings with real LLM-generated findings and recommendations.
+  - Implemented multi-stage extraction pipeline: direct JSON $\rightarrow$ markdown code block regex $\rightarrow$ embedded substring parser $\rightarrow$ heuristic plain text fallback.
+- **Cryptographic Snapshot Hashing**:
+  - Upgraded `_compute_deterministic_metrics` to compute SHA-256 over ALL active cards sorted by ID, including `(id, column_id, status, priority, position, title, updated_at)` as well as board columns.
+  - Fixed cache invalidation for card changes outside the first 10 cards, status/priority mutations, and column reordering.
+- **Cache TTL & Bounded LRU Eviction**:
+  - Replaced unbounded dict with thread-safe `OrderedDict` LRU cache (`MAX_CACHE_SIZE = 200`, `CACHE_TTL_SECONDS = 900`).
+  - Added `cache_age_seconds` and `trace_id` to `InsightReport`.
+- **Tavily Error Classification & Observability**:
+  - Added explicit status classification in `provider_metadata`: `success`, `empty_results`, `disabled_no_key`, `rate_limited`, `auth_error`, `timeout`, `network_error`.
+  - Recorded request execution duration in milliseconds (`duration_ms`).
+- **Resilient Fallback Preservation**:
+  - Maintained deterministic analytics fallback on unrecoverable external provider failures.
+
+### Phase 2: Deerflow Regression Test Suite
+- Added 7 comprehensive regression test scenarios to `tests/integration/test_standup_and_insights.py`:
+  1. `test_deerflow_structured_output_parsing`: Exact Pydantic validation of LLM JSON.
+  2. `test_deerflow_malformed_json_repair_and_unparseable_fallback`: Fenced markdown repair and empty content fallback.
+  3. `test_deerflow_snapshot_hash_card_changes_outside_ten`: Cache invalidation on card #12 mutation.
+  4. `test_deerflow_snapshot_hash_status_priority_and_column_moves`: Column movement and priority change cache invalidation.
+  5. `test_deerflow_cache_expiration_and_lru_eviction`: Direct unit test of 15m TTL expiration and bounded LRU eviction.
+  6. `test_deerflow_tavily_timeouts_and_rate_limits`: Tavily timeout, 429 rate limit, and disabled key classification.
+  7. `test_distinguish_live_provider_503_from_mocked_success`: Verification that external 503 is never falsely reported as live success.
+
