@@ -177,12 +177,13 @@
 - **Database Provisioning (Supabase / Neon.tech)**:
   - Documented setup for free managed PostgreSQL 16 with native `pgvector` vector extension.
   - Provided connection string configuration compatible with `psycopg` and SQLAlchemy.
-- **Backend Container Deployment (Fly.io / Koyeb)**:
-  - Created production `fly.toml` configuration targeting our `Dockerfile` with zero cold-start delay.
-  - Documented alternative zero-config GitHub deployment on Koyeb's Always Free tier.
+- **Backend Container Deployment (Hugging Face Spaces / Cloudflare Tunnel / Koyeb)**:
+  - Configured `Dockerfile` with dynamic `$PORT` compatibility (supporting port `7860` for Hugging Face Spaces).
+  - Documented setup for Hugging Face Spaces (Docker SDK) offering 16 GB RAM, 2 vCPUs, 24/7 uptime, and free HTTPS with zero credit card required.
+  - Documented instant Cloudflare Tunnel (`cloudflared`) configuration for zero-cost remote broadcast of local Docker containers.
 - **Frontend Edge Hosting (Cloudflare Pages / Vercel)**:
   - Documented deployment of Flutter Web release build (`client/build/web`) with global edge CDN and custom domain.
-- **Documentation**: Created `docs/free-tier-deployment.md`.
+- **Documentation**: Updated `docs/free-tier-deployment.md`.
 
 ---
 
