@@ -104,6 +104,23 @@
 - **Deployment Documentation**: Created `docs/deploy.md` and updated `README.md`.
 - **Final Test Verification**: 75 tests passing across all suites.
 
+### [2026-11-18] — Phase 5: Deepened Deerflow Integration & Draggable UI Sheet
+**Status:** Completed  
+**Focus:** Provider-neutral Tavily research, snapshot caching, and draggable Flutter insights sheet
+
+#### Work Done:
+- **Deerflow + Tavily Provider (`app/services/analytics/insights_service.py`)**:
+  - Implemented formal `BoardInsightProvider` abstraction.
+  - Added `DeerflowTavilyProvider` connecting board metadata with external agile research queries (`Tavily API`).
+  - Added bounded exponential backoff with jitter and snapshot hash caching (`SHA256`) to prevent redundant external calls.
+  - Integrated `force_refresh` capability in `GET /api/v1/boards/{board_id}/insights`.
+- **Draggable Board Insights Sheet (`client/lib/screens/board/draggable_board_insights_sheet.dart`)**:
+  - Implemented interactive `DraggableScrollableSheet` with snap points at `25%` (peek bar), `65%` (standard review), and `95%` (full-screen executive briefing).
+  - Designed drag handle pill indicator at top for smooth gesture interaction over Kanban columns.
+  - Visualized live progress metrics, strategic summary, bulleted key findings, actionable recommendations, and external research citations (`sources`).
+  - Integrated into `BoardDetailScreen` via AppBar action button and bottom quick-access trigger.
+- **Verification**: 12 Flutter tests passing (`insights_test.dart` drag gesture tests) and 75 backend tests passing.
+
 ---
 
 ## 🏛️ Architectural Decisions & Rationales (ADRs)
