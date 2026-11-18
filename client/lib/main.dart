@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,9 +56,23 @@ class BoardBuddyApp extends StatelessWidget {
           title: 'BoardBuddy',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.darkTheme,
+          scrollBehavior: const WebScrollBehavior(),
           home: const WelcomeScreen(),
         ),
       ),
     );
   }
 }
+
+class WebScrollBehavior extends MaterialScrollBehavior {
+  const WebScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+        PointerDeviceKind.stylus,
+      };
+}
+

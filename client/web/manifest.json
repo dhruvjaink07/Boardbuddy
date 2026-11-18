@@ -1,12 +1,12 @@
 {
-    "name": "boardbuddy",
-    "short_name": "boardbuddy",
+    "name": "BoardBuddy - AI-Powered Kanban",
+    "short_name": "BoardBuddy",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#0D0B0A",
+    "theme_color": "#FF6433",
+    "description": "Visual, AI-assisted project management for everyone.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

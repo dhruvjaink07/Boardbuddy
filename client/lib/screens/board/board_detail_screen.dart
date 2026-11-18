@@ -5,6 +5,7 @@ import '../../blocs/board_detail/board_detail_event.dart';
 import '../../blocs/board_detail/board_detail_state.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/utils/responsive.dart';
 import '../../models/card_model.dart';
 import '../../models/column_model.dart';
 import '../../repositories/board_repository.dart';
@@ -56,6 +57,7 @@ class _BoardDetailScreenState extends State<BoardDetailScreen> {
 
         final board = (state as BoardDetailLoaded).board;
         final columns = board.columns;
+        final isWideScreen = Responsive.isTablet(context) || Responsive.isDesktop(context);
         final currentColumn = columns.isNotEmpty && _selectedColumnIndex < columns.length
             ? columns[_selectedColumnIndex]
             : null;
@@ -109,97 +111,99 @@ class _BoardDetailScreenState extends State<BoardDetailScreen> {
             ],
           ),
           body: SafeArea(
-            child: Column(
-              children: [
-                // Horizontal Column Headers Tab Bar
-                Container(
-                  height: 48,
-                  margin: const EdgeInsets.only(top: 8, bottom: 12),
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: columns.length,
-                    itemBuilder: (context, index) {
-                      final col = columns[index];
-                      final isSelected = index == _selectedColumnIndex;
-                      return GestureDetector(
-                        onTap: () => setState(() => _selectedColumnIndex = index),
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    col.title,
-                                    style: AppTypography.titleMedium.copyWith(
-                                      color: isSelected
-                                          ? AppColors.textPrimary
-                                          : AppColors.textMuted,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w700
-                                          : FontWeight.w500,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppColors.surfaceElevated
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      '${col.cards.length}',
-                                      style: TextStyle(
-                                        color: isSelected
-                                            ? AppColors.orangePrimary
-                                            : AppColors.textMuted,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              if (isSelected)
-                                Container(
-                                  height: 3,
-                                  width: 44,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.orangePrimary,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Responsive Kanban Cards View
-                Expanded(
-                  child: currentColumn == null || currentColumn.cards.isEmpty
-                      ? _buildEmptyColumn(currentColumn?.title ?? 'Column')
-                      : ListView.separated(
-                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
-                          itemCount: currentColumn.cards.length,
-                          separatorBuilder: (context, index) => const SizedBox(height: 14),
+            child: isWideScreen
+                ? _buildMultiColumnBoard(context, columns)
+                : Column(
+                    children: [
+                      // Horizontal Column Headers Tab Bar
+                      Container(
+                        height: 48,
+                        margin: const EdgeInsets.only(top: 8, bottom: 12),
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemCount: columns.length,
                           itemBuilder: (context, index) {
-                            final card = currentColumn.cards[index];
-                            return _buildTaskCard(context, card, currentColumn, columns);
+                            final col = columns[index];
+                            final isSelected = index == _selectedColumnIndex;
+                            return GestureDetector(
+                              onTap: () => setState(() => _selectedColumnIndex = index),
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          col.title,
+                                          style: AppTypography.titleMedium.copyWith(
+                                            color: isSelected
+                                                ? AppColors.textPrimary
+                                                : AppColors.textMuted,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: isSelected
+                                                ? AppColors.surfaceElevated
+                                                : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Text(
+                                            '${col.cards.length}',
+                                            style: TextStyle(
+                                              color: isSelected
+                                                  ? AppColors.orangePrimary
+                                                  : AppColors.textMuted,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Spacer(),
+                                    if (isSelected)
+                                      Container(
+                                        height: 3,
+                                        width: 44,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.orangePrimary,
+                                          borderRadius: BorderRadius.circular(2),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
                           },
                         ),
-                ),
-              ],
-            ),
+                      ),
+
+                      // Responsive Kanban Cards View
+                      Expanded(
+                        child: currentColumn == null || currentColumn.cards.isEmpty
+                            ? _buildEmptyColumn(currentColumn?.title ?? 'Column')
+                            : ListView.separated(
+                                padding: const EdgeInsets.fromLTRB(20, 4, 20, 90),
+                                itemCount: currentColumn.cards.length,
+                                separatorBuilder: (context, index) => const SizedBox(height: 14),
+                                itemBuilder: (context, index) {
+                                  final card = currentColumn.cards[index];
+                                  return _buildTaskCard(context, card, currentColumn, columns);
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
           ),
           bottomSheet: Container(
             color: AppColors.background,
@@ -248,6 +252,96 @@ class _BoardDetailScreenState extends State<BoardDetailScreen> {
                 ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildMultiColumnBoard(
+    BuildContext context,
+    List<ColumnModel> columns,
+  ) {
+    if (columns.isEmpty) {
+      return _buildEmptyColumn('Board');
+    }
+
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      itemCount: columns.length,
+      itemBuilder: (context, colIndex) {
+        final col = columns[colIndex];
+        return Container(
+          width: 320,
+          margin: const EdgeInsets.only(right: 18),
+          decoration: BoxDecoration(
+            color: AppColors.surfaceElevated.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.border, width: 0.8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          col.title,
+                          style: AppTypography.titleMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceElevated,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            '${col.cards.length}',
+                            style: const TextStyle(
+                              color: AppColors.orangePrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add_rounded, size: 20, color: AppColors.textSecondary),
+                      onPressed: () => _showQuickAddTaskDialog(context, col),
+                      tooltip: 'Add task to ${col.title}',
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1, color: AppColors.border),
+              Expanded(
+                child: col.cards.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No tasks in ${col.title}',
+                          style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: col.cards.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 10),
+                        itemBuilder: (context, cardIndex) {
+                          final card = col.cards[cardIndex];
+                          return _buildTaskCard(context, card, col, columns);
+                        },
+                      ),
+              ),
+            ],
           ),
         );
       },
