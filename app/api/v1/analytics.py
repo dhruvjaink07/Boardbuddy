@@ -142,6 +142,11 @@ def get_board_insights(
     board_id: uuid.UUID,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
+    force_refresh: bool = False,
 ) -> InsightReport:
     service = BoardInsightService(db)
-    return service.generate_insights(user_id=current_user.id, board_id=board_id)
+    return service.generate_insights(
+        user_id=current_user.id,
+        board_id=board_id,
+        force_refresh=force_refresh,
+    )

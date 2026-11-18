@@ -109,7 +109,10 @@ def test_deerflow_insights_and_fallback(
 
     set_mock_llm_client(BrokenLLMClient())
 
-    fallback_res = client.get(f"/api/v1/boards/{test_board.id}/insights", headers=auth_headers)
+    fallback_res = client.get(
+        f"/api/v1/boards/{test_board.id}/insights?force_refresh=true",
+        headers=auth_headers,
+    )
     assert fallback_res.status_code == 200
     fallback_data = fallback_res.json()
     # Verify fallback flag is set and safe deterministic report is returned without crashing

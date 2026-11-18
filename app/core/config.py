@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     GEMINI_MODEL: str = "gemini-1.5-flash"
     LLM_TEMPERATURE: float = 0.2
     LLM_TIMEOUT_SECONDS: int = 30
+    TAVILY_API_KEY: str = ""
+    DEERFLOW_TIMEOUT_SECONDS: int = 15
 
     # Embeddings & Search
     EMBEDDING_PROVIDER: str = "gemini"
