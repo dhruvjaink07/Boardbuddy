@@ -121,6 +121,23 @@
   - Integrated into `BoardDetailScreen` via AppBar action button and bottom quick-access trigger.
 - **Verification**: 12 Flutter tests passing (`insights_test.dart` drag gesture tests) and 75 backend tests passing.
 
+### [2026-11-18] — Phase 6: Brand Assets & Multi-Platform Logo Serving
+**Status:** Completed  
+**Focus:** Brand logo extraction, pixel-perfect SVG/raster generation, backend static file serving, and Flutter app icon integration
+
+#### Work Done:
+- **Brand Logo Asset Extraction & Generation (`scripts/generate_logo_assets.py`)**:
+  - Extracted exact geometry, curvature, and color palettes from `BoardbuddyDesigns.pdf` (Page 1): warm peach-amber gradient (`#E2B18A` to `#ECCCA8`), dark espresso hollow rounded cards (`#191718`) in a 2x2 Kanban grid, and bold white geometric typography.
+  - Generated pixel-perfect signed-distance-field (SDF) raster PNGs (1024x1024 master, 512, 256, 192, 128, 64, 32, 16) and scalable vector SVGs (`logo.svg`, `logo_icon.svg`).
+- **Backend Static File Serving (`app/main.py`)**:
+  - Mounted `/static` directory for direct browser/client asset retrieval.
+  - Added direct root endpoints `/logo.png`, `/logo.svg`, `/favicon.ico`.
+- **Flutter Client Integration**:
+  - Configured `client/pubspec.yaml` with `assets/images/`.
+  - Replaced default Flutter icons with authentic BoardBuddy assets across Web (PWA favicon/maskable), macOS, and iOS launcher asset catalogues.
+  - Updated `WelcomeScreen` to render the branded logo asset with glowing orange ambient shadow.
+- **Verification**: 75 backend tests passing, 12 Flutter tests passing, and 0 analyzer errors.
+
 ---
 
 ## 🏛️ Architectural Decisions & Rationales (ADRs)
