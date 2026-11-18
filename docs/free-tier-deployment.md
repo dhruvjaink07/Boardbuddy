@@ -1,136 +1,114 @@
-# BoardBuddy Free-Tier Hosting Guide (No Render)
+# 100% Free Hosting Guide (Zero Cost, No Credit Card, No Render)
 
-This guide shows how to deploy the entire BoardBuddy stack (PostgreSQL + pgvector, FastAPI Backend, and Flutter Web Frontend) for **$0 / month** using modern developer platforms with **no cold-start degradation** and **native pgvector support**.
-
----
-
-## Architecture Overview
-
-```
-┌─────────────────────────────────┐
-│     Cloudflare Pages / Vercel    │  <-- Flutter Web Client (100% Free, Global CDN)
-│       (https://boardbuddy.dev)   │
-└────────────────┬────────────────┘
-                 │ REST / WebSockets
-┌────────────────▼────────────────┐
-│         Fly.io / Koyeb          │  <-- FastAPI Backend (Docker, 100% Free Tier)
-│    (https://api.boardbuddy.dev) │
-└────────────────┬────────────────┘
-                 │ TCP / SSL
-┌────────────────▼────────────────┐
-│      Supabase / Neon.tech       │  <-- PostgreSQL 16 + pgvector (100% Free Tier)
-│    (Native Vector Embeddings)   │
-└─────────────────────────────────┘
-```
+This guide documents completely free hosting options where you can run the BoardBuddy Backend and Database with **$0 / month**, **NO credit card required**, and **NO Render cold-start lag**.
 
 ---
 
-## 1. Database: Supabase or Neon (PostgreSQL + pgvector)
+## The 100% Free Stack
 
-### Why NOT Render?
-Render free tier does not support persistent storage or custom Postgres extensions like `pgvector` on free accounts, and shuts down aggressively.
+| Layer | Service | Cost | Credit Card? | Why it works for BoardBuddy |
+|---|---|---|---|---|
+| **Database** | **Supabase** or **Neon.tech** | **$0** | ❌ **No CC needed** | PostgreSQL 16 with native `pgvector` pre-installed |
+| **Backend API** | **Hugging Face Spaces** (Docker) | **$0** | ❌ **No CC needed** | 16 GB RAM, 2 vCPUs, runs our Dockerfile 24/7 with public HTTPS |
+| **Alternative API** | **Cloudflare Tunnel** (`cloudflared`) | **$0** | ❌ **No CC needed** | Exposes your local Docker instance to a global HTTPS URL |
+| **Frontend Web** | **Cloudflare Pages** or **Vercel** | **$0** | ❌ **No CC needed** | Unlimited global CDN bandwidth for Flutter Web build |
 
-### Option A: Supabase (Recommended)
-1. Sign up at [supabase.com](https://supabase.com) (Free account, no credit card required).
-2. Click **New Project** $\rightarrow$ Name: `boardbuddy` $\rightarrow$ Set a strong database password.
-3. Once provisioned, navigate to **Project Settings** $\rightarrow$ **Database** $\rightarrow$ **Connection String** (select **URI** or **Transaction Pooler**).
-4. Go to **SQL Editor** and run:
+---
+
+## 1. Database: Supabase (PostgreSQL + pgvector)
+
+Supabase gives 2 free PostgreSQL databases with native `pgvector` support and **no credit card required** at signup.
+
+### Steps:
+1. Go to [supabase.com](https://supabase.com) $\rightarrow$ Sign in with GitHub.
+2. Click **New Project**:
+   - Name: `boardbuddy`
+   - Database Password: Choose a strong password.
+3. Once the database is ready (takes ~1 minute), open the **SQL Editor** tab and execute:
    ```sql
    CREATE EXTENSION IF NOT EXISTS vector;
    ```
-5. Format your connection string for Python `psycopg`:
+4. Go to **Project Settings** $\rightarrow$ **Database** $\rightarrow$ **Connection String** $\rightarrow$ **URI**.
+5. Copy the connection string. In BoardBuddy, prefix it with `postgresql+psycopg://`:
    ```bash
    DATABASE_URL=postgresql+psycopg://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
    ```
 
-### Option B: Neon.tech (Alternative)
-1. Sign up at [neon.tech](https://neon.tech) (Free tier with 0.5 GB storage).
-2. Create project `boardbuddy`.
-3. In SQL Console, run `CREATE EXTENSION IF NOT EXISTS vector;`.
-4. Copy the connection string with `postgresql+psycopg://...`.
+*(Alternative: [neon.tech](https://neon.tech) also offers a 100% free serverless PostgreSQL database with native `pgvector` and no credit card).*
 
 ---
 
-## 2. Backend: Fly.io (Container Hosting)
+## 2. Backend: Hugging Face Spaces (Docker SDK)
 
-Fly.io runs our native [`Dockerfile`](../Dockerfile) directly with sub-second wake times and global edge SSL.
+Hugging Face Spaces provides a **free container hosting tier with 16 GB RAM and 2 vCPUs** that runs any Dockerfile directly, requires **NO credit card**, and gives you a free public HTTPS endpoint.
 
-### Step 1: Install Fly CLI
-```bash
-# macOS
-brew install flyctl
-
-# Linux / WSL
-curl -L https://fly.io/install.sh | sh
-```
-
-### Step 2: Login & Launch
-```bash
-fly auth login
-fly launch --no-deploy
-```
-
-### Step 3: Set Secrets
-```bash
-fly secrets set \
-  APP_ENV=production \
-  APP_SECRET_KEY="generate-a-secure-32-char-random-secret" \
-  DATABASE_URL="postgresql+psycopg://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres" \
-  GEMINI_API_KEY="your-gemini-api-key" \
-  TAVILY_API_KEY="your-tavily-api-key" \
-  CORS_ORIGINS="https://your-frontend-domain.pages.dev,http://localhost:3000"
-```
-
-### Step 4: Deploy & Run Migrations
-```bash
-# Run database migrations remotely
-fly ssh console -C "alembic upgrade head"
-
-# Deploy container
-fly deploy
-```
+### Steps:
+1. Create a free account at [huggingface.co](https://huggingface.co) (no credit card).
+2. Click **New Space** $\rightarrow$ [huggingface.co/new-space](https://huggingface.co/new-space).
+   - Space Name: `boardbuddy-api`
+   - License: `mit`
+   - Space SDK: Select **Docker** $\rightarrow$ **Blank**
+   - Space Hardware: **CPU Basic (Free - 2 vCPU, 16 GB RAM)**
+   - Visibility: **Public**
+3. In your Space's **Settings** $\rightarrow$ **Variables and Secrets**, add your secrets:
+   - `DATABASE_URL`: `postgresql+psycopg://postgres:[PASSWORD]@db.[REF].supabase.co:5432/postgres`
+   - `APP_SECRET_KEY`: `your-random-32-char-secret`
+   - `GEMINI_API_KEY`: `your-gemini-api-key`
+   - `TAVILY_API_KEY`: `your-tavily-api-key` (optional)
+   - `CORS_ORIGINS`: `*`
+4. Push the BoardBuddy repository to your Space:
+   ```bash
+   git remote add space https://huggingface.co/spaces/[YOUR-USERNAME]/boardbuddy-api
+   git push space main
+   ```
+5. Hugging Face builds the `Dockerfile` and starts Uvicorn on port `7860`.
+6. Your backend API is instantly live at:
+   ```
+   https://[YOUR-USERNAME]-boardbuddy-api.hf.space
+   ```
+   Open `https://[YOUR-USERNAME]-boardbuddy-api.hf.space/docs` to see the interactive Swagger UI!
 
 ---
 
-## 3. Backend Alternative: Koyeb (Zero-Config Docker)
+## 3. Alternative: Run Locally with Cloudflare Tunnel (100% Free, Private & Powerful)
 
-Koyeb offers an **Always Free Eco Tier** (512 MB RAM, 0.1 vCPU) with continuous deployment from GitHub:
+If you have Docker running locally on your computer and want to make your API available to mobile phones, Flutter Web, or collaborators anywhere in the world for **$0 with zero deployment hassle**:
 
-1. Sign up at [koyeb.com](https://koyeb.com).
-2. Click **Create Service** $\rightarrow$ Select **GitHub**.
-3. Select your `Boardbuddy` repository.
-4. Builder: Select **Dockerfile**.
-5. Under **Environment Variables**, add:
-   - `DATABASE_URL` (from Supabase/Neon)
-   - `APP_SECRET_KEY`
-   - `GEMINI_API_KEY`
-   - `PORT=8000`
-6. Click **Deploy**. Koyeb automatically provisions an SSL endpoint (e.g. `https://boardbuddy-yourname.koyeb.app`).
+```bash
+# 1. Start BoardBuddy locally with Docker Compose
+docker compose up -d
+
+# 2. Run Cloudflare Tunnel (free, no sign-up or credit card required)
+brew install cloudflared
+cloudflared tunnel --url http://localhost:8000
+```
+Cloudflare will instantly print a public secure URL:
+```
+https://random-words.trycloudflare.com
+```
+Any request sent to this URL securely proxies directly to your local FastAPI backend!
 
 ---
 
-## 4. Frontend: Flutter Web on Cloudflare Pages or Vercel
+## 4. Frontend: Flutter Web on Cloudflare Pages (100% Free)
 
-### Step 1: Build Web Release
-```bash
-cd client
-flutter build web --release
-```
-
-### Step 2: Deploy to Cloudflare Pages (Completely Free, Unlimited Bandwidth)
-```bash
-# Using Wrangler CLI
-npx wrangler pages deploy build/web --project-name=boardbuddy
-```
-Or simply drag-and-drop the `client/build/web` folder into the Cloudflare Pages web dashboard.
+1. Build the production web bundle:
+   ```bash
+   cd client
+   flutter build web --release
+   ```
+2. Deploy to Cloudflare Pages (no credit card):
+   - Open [dash.cloudflare.com](https://dash.cloudflare.com) $\rightarrow$ **Workers & Pages** $\rightarrow$ **Pages** $\rightarrow$ **Upload Assets**.
+   - Drag and drop the `client/build/web` directory.
+   - Name your project `boardbuddy`.
+3. Your web app is live with free global CDN and SSL at `https://boardbuddy.pages.dev`!
 
 ---
 
-## 5. Cost Summary
+## Summary: $0.00 Total Cost
 
-| Service | Provider | Cost | Tier Details |
-|---|---|---|---|
-| **Database + pgvector** | Supabase | **$0** | 500 MB storage, native vector indexing |
-| **Backend API** | Fly.io / Koyeb | **$0** | Free tier container hosting, global SSL |
-| **Frontend Web** | Cloudflare Pages | **$0** | Unlimited bandwidth, custom domain included |
-| **Total Monthly Cost** | | **$0.00** | Production-ready with zero Render cold-starts |
+- **Database**: Supabase (Free tier PostgreSQL + `pgvector`)
+- **Backend API**: Hugging Face Spaces (Free Docker, 16 GB RAM) OR Cloudflare Tunnel
+- **Frontend App**: Cloudflare Pages (Free unlimited web hosting)
+- **Credit Card Required**: **NONE**
+- **Cold-Start Delays**: **NONE** (Hugging Face Spaces runs continuously without sleeping)
