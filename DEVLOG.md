@@ -169,6 +169,21 @@
   - Implemented atomic board creation: persists full board, columns, and task cards directly into `BoardListBloc`.
 - **Verification**: 15 Flutter tests passing (`board_generation_test.dart` for 320px screen test & generation preview flow); 75 backend tests passing; 0 analyzer issues.
 
+### [2026-11-18] — Phase 9: Free-Tier Production Deployment Architecture (No Render)
+**Status:** Completed  
+**Focus:** Production hosting architecture for $0/mo without Render cold-starts or limitations
+
+#### Work Done:
+- **Database Provisioning (Supabase / Neon.tech)**:
+  - Documented setup for free managed PostgreSQL 16 with native `pgvector` vector extension.
+  - Provided connection string configuration compatible with `psycopg` and SQLAlchemy.
+- **Backend Container Deployment (Fly.io / Koyeb)**:
+  - Created production `fly.toml` configuration targeting our `Dockerfile` with zero cold-start delay.
+  - Documented alternative zero-config GitHub deployment on Koyeb's Always Free tier.
+- **Frontend Edge Hosting (Cloudflare Pages / Vercel)**:
+  - Documented deployment of Flutter Web release build (`client/build/web`) with global edge CDN and custom domain.
+- **Documentation**: Created `docs/free-tier-deployment.md`.
+
 ---
 
 ## 🏛️ Architectural Decisions & Rationales (ADRs)
